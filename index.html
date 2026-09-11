@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Imóvel Vago</title>
+<style>
+  :root{
+    --bg:#ffffff; --panel:#ffffff; --panel-2:#f2f7f3; --line:#dbe8de;
+    --text:#163422; --text-dim:#5c7864;
+    --accent:#2f7a4f; --accent-dark:#1f5c39; --accent-dim:#cfe8d7;
+    --accent-text:#ffffff; --red:#c85a40; --gray:#8a978f;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Georgia','Iowan Old Style',serif;min-height:100vh;padding:18px 14px 40px;}
+  .wrap{max-width:480px;margin:0 auto;}
+  header{margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--line);}
+  header h1{font-size:22px;font-weight:600;margin:0 0 4px;color:var(--accent);}
+  header p{margin:0;color:var(--text-dim);font-size:13px;font-family:-apple-system,system-ui,sans-serif;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px;}
+  label{display:block;font-family:-apple-system,system-ui,sans-serif;font-size:12.5px;color:var(--text-dim);margin:14px 0 6px;}
+  label:first-of-type{margin-top:0;}
+  input[type="text"],input[type="date"],input[type="number"]{
+    width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--text);
+    font-family:-apple-system,system-ui,sans-serif;font-size:16px;padding:11px 12px;-webkit-appearance:none;appearance:none;
+  }
+  input:focus{outline:none;border-color:var(--accent);}
+  .row2{display:flex;gap:8px;}
+  .row2 .col-end{flex:3;}
+  .row2 .col-num{flex:1;}
+
+  .etapa-opts{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:4px;}
+  .etapa-opts button{
+    padding:9px 2px;border-radius:6px;border:1px solid var(--line);background:var(--panel-2);
+    color:var(--text-dim);font-family:-apple-system,system-ui,sans-serif;font-size:12.5px;font-weight:600;cursor:pointer;
+  }
+  .etapa-opts button.sel{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+  .toggle-btn{
+    width:100%;margin-top:6px;padding:12px;border-radius:8px;border:1px solid var(--accent);background:var(--panel-2);
+    color:var(--accent);font-family:-apple-system,system-ui,sans-serif;font-size:14px;font-weight:700;cursor:pointer;
+  }
+  .toggle-btn.on{background:var(--accent);color:#fff;}
+
+  .foto-row{display:flex;gap:8px;margin-top:6px;}
+  .foto-btn{
+    flex:1;padding:11px 6px;border-radius:8px;border:1px dashed var(--accent-dim);background:var(--panel-2);
+    color:var(--accent);font-family:-apple-system,system-ui,sans-serif;font-size:12.5px;font-weight:600;cursor:pointer;text-align:center;
+  }
+  .foto-preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+  .leitura-row{display:flex;gap:8px;margin-bottom:8px;}
+  .leitura-row input{flex:1;}
+  .leitura-row .rm-leitura{background:var(--panel-2);border:1px solid var(--line);color:var(--gray);border-radius:8px;width:40px;font-size:16px;cursor:pointer;}
+  .foto-thumb{position:relative;width:72px;height:72px;border-radius:8px;overflow:hidden;border:1px solid var(--line);}
+  .foto-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .foto-thumb .rm{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;border:none;font-size:11px;line-height:18px;text-align:center;cursor:pointer;padding:0;}
+  .foto-thumb .share{position:absolute;bottom:2px;right:2px;width:22px;height:22px;border-radius:50%;background:rgba(47,122,79,.9);color:#fff;border:none;font-size:12px;line-height:22px;text-align:center;cursor:pointer;padding:0;}
+  .foto-thumb .crop-btn{position:absolute;bottom:2px;left:2px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;border:none;font-size:11px;line-height:22px;text-align:center;cursor:pointer;padding:0;}
+
+  .save-btn{width:100%;margin-top:18px;padding:14px;border-radius:8px;border:none;background:var(--accent-dark);color:#fff;font-family:-apple-system,system-ui,sans-serif;font-size:15px;font-weight:700;cursor:pointer;}
+  .save-btn:disabled{background:var(--gray);}
+  .status-msg{text-align:center;font-family:-apple-system,system-ui,sans-serif;font-size:13px;color:var(--text-dim);margin-top:10px;min-height:16px;}
+
+  .section-title{font-family:-apple-system,system-ui,sans-serif;font-size:13px;color:var(--text-dim);margin:26px 2px 10px;display:flex;justify-content:space-between;}
+  .section-title .count{color:var(--accent);font-weight:600;}
+
+  .entry{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;padding:12px 14px;margin-bottom:10px;font-family:-apple-system,system-ui,sans-serif;}
+  .entry.desocupado{border-left-color:var(--red);}
+  .entry-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+  .entry-end{font-size:15px;font-weight:700;color:var(--accent);}
+  .entry-date{font-size:12px;color:var(--text-dim);white-space:nowrap;}
+  .entry-meta{font-size:12.5px;color:var(--text-dim);margin-top:4px;}
+  .entry-fotos{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+  .entry-fotos img{width:60px;height:60px;object-fit:cover;border-radius:6px;border:1px solid var(--line);cursor:pointer;}
+  .entry-actions{display:flex;justify-content:flex-end;margin-top:8px;padding-top:6px;border-top:1px solid var(--line);}
+  .entry-del{background:none;border:none;color:var(--gray);font-size:12px;font-family:-apple-system,system-ui,sans-serif;cursor:pointer;}
+  .empty{text-align:center;color:var(--text-dim);font-family:-apple-system,system-ui,sans-serif;font-size:13px;padding:30px 10px;}
+
+  footer.assinatura{text-align:center;margin-top:26px;color:var(--accent);font-family:-apple-system,system-ui,sans-serif;font-size:12px;opacity:.85;}
+
+  /* Modal foto tela cheia (toque e segure p/ compartilhar) */
+  .foto-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:999;align-items:center;justify-content:center;flex-direction:column;padding:20px;}
+  .foto-modal.open{display:flex;}
+  .foto-modal img{max-width:100%;max-height:75vh;border-radius:8px;-webkit-touch-callout:default;}
+  .foto-modal-hint{color:#eee;font-family:-apple-system,system-ui,sans-serif;font-size:12.5px;margin-top:12px;text-align:center;}
+  .foto-modal-close{position:absolute;top:18px;right:18px;background:none;border:none;color:#fff;font-size:26px;cursor:pointer;line-height:1;}
+
+  /* Modal de recorte (fotos da galeria) */
+  .crop-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:1000;align-items:center;justify-content:center;flex-direction:column;padding:16px;}
+  .crop-modal.open{display:flex;}
+  .crop-frame{width:280px;height:280px;overflow:hidden;position:relative;border-radius:10px;border:2px solid var(--accent);touch-action:none;background:#111;}
+  .crop-frame img{position:absolute;left:0;top:0;max-width:none;transform-origin:0 0;cursor:grab;}
+  .crop-controls{width:280px;margin-top:16px;}
+  .crop-controls input[type="range"]{width:100%;}
+  .crop-actions{display:flex;gap:10px;margin-top:12px;width:280px;}
+  .crop-actions button{flex:1;padding:11px;border-radius:8px;border:none;font-family:-apple-system,system-ui,sans-serif;font-size:14px;font-weight:700;cursor:pointer;}
+  .crop-actions .ok{background:var(--accent-dark);color:#fff;}
+  .crop-actions .cancel{background:#444;color:#fff;}
+  .crop-label{color:#eee;font-family:-apple-system,system-ui,sans-serif;font-size:12.5px;margin-bottom:8px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Imóvel Vago</h1>
+    <p>Registro de leitura por endereço</p>
+  </header>
+
+  <div class="card">
+    <label for="data">Data</label>
+    <input type="date" id="data">
+
+    <label>Endereço</label>
+    <div class="row2">
+      <input type="text" id="endereco" class="col-end" placeholder="Ex: Rua das Flores" autocomplete="off">
+      <input type="text" id="numero" class="col-num" inputmode="numeric" placeholder="Nº" autocomplete="off">
+    </div>
+
+    <label>Etapa</label>
+    <div class="etapa-opts" id="etapaOpts"></div>
+
+    <label for="medidor">Número do medidor</label>
+    <input type="text" id="medidor" inputmode="text" placeholder="Ex: 987654" autocomplete="off">
+
+    <label>Leitura</label>
+    <div id="leituraList"></div>
+
+    <button type="button" class="toggle-btn" id="desocupadoBtn">Imóvel desocupado</button>
+
+    <label>Foto</label>
+    <div class="foto-row">
+      <input type="file" id="fotoCamera" accept="image/*" capture="environment" style="display:none;">
+      <input type="file" id="fotoGaleria" accept="image/*" multiple style="display:none;">
+      <button type="button" class="foto-btn" id="btnCamera">📷 Tirar foto</button>
+      <button type="button" class="foto-btn" id="btnGaleria">🖼️ Escolher da galeria</button>
+    </div>
+    <div class="foto-preview" id="fotoPreview"></div>
+
+    <button class="save-btn" id="saveBtn">Salvar registro</button>
+    <div class="status-msg" id="statusMsg"></div>
+  </div>
+
+  <div class="section-title">
+    <span>Registros salvos</span>
+    <span class="count" id="entryCount">0</span>
+  </div>
+
+  <div id="entriesList"></div>
+
+  <footer class="assinatura">Criado por Luís Ricardo</footer>
+</div>
+
+<!-- Modal tela cheia p/ compartilhar via toque e segure -->
+<div class="foto-modal" id="fotoModal">
+  <button class="foto-modal-close" id="fotoModalClose">×</button>
+  <img id="fotoModalImg" src="" alt="Foto">
+  <div class="foto-modal-hint">Toque e segure na foto para compartilhar ou salvar</div>
+</div>
+
+<!-- Modal de recorte -->
+<div class="crop-modal" id="cropModal">
+  <div class="crop-label" id="cropLabel">Ajuste a foto: arraste para posicionar e use o zoom</div>
+  <div class="crop-frame" id="cropFrame">
+    <img id="cropImg" src="" alt="">
+  </div>
+  <div class="crop-controls">
+    <input type="range" id="cropZoom" min="100" max="300" value="100">
+  </div>
+  <div class="crop-actions">
+    <button class="cancel" id="cropCancel">Cancelar</button>
+    <button class="ok" id="cropOk">Usar foto</button>
+  </div>
+</div>
+
+<script>
+let entries = [];
+const CHAVE_DADOS = 'imovel-vago-entries';
+let etapaSelecionada = null;
+let desocupado = false;
+let selectedFotos = []; // dataURLs já com texto sobreposto, prontas p/ salvar
+let leituraValores = [''];
+
+function todayStr(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function formatDateBR(iso){
+  if(!iso) return '';
+  const [y,m,d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+function capitalize(str){
+  if(!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+document.getElementById('data').value = todayStr();
+
+const enderecoInput = document.getElementById('endereco');
+enderecoInput.addEventListener('blur', ()=>{
+  enderecoInput.value = capitalize(enderecoInput.value);
+});
+
+// ---- Etapas 1 a 18 ----
+const etapaBox = document.getElementById('etapaOpts');
+etapaBox.innerHTML = Array.from({length:18}, (_,i)=>i+1).map(n=>`<button type="button" data-etapa="${n}">${n}</button>`).join('');
+etapaBox.querySelectorAll('button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const novaEtapa = btn.dataset.etapa;
+
+    // Se já havia uma etapa selecionada e existe foto (ou endereço) pendente,
+    // salva automaticamente esse registro na etapa antiga antes de trocar,
+    // para a foto não ficar "solta" esperando para ser salva com o próximo.
+    if(etapaSelecionada && etapaSelecionada !== novaEtapa && (selectedFotos.length > 0 || enderecoInput.value.trim())){
+      salvarRegistro(etapaSelecionada, { silencioso: true });
+    }
+
+    etapaSelecionada = novaEtapa;
+    etapaBox.querySelectorAll('button').forEach(b=>b.classList.remove('sel'));
+    btn.classList.add('sel');
+  });
+});
+
+// ---- Leituras: campo se multiplica ao digitar na última linha ----
+function renderLeituraRows(){
+  const box = document.getElementById('leituraList');
+  box.innerHTML = leituraValores.map((val, i) => `
+    <div class="leitura-row">
+      <input type="text" inputmode="numeric" placeholder="Ex: 12345" class="leitura-input" data-i="${i}" value="${val}">
+      ${leituraValores.length > 1 ? `<button type="button" class="rm-leitura" data-i="${i}">×</button>` : ''}
+    </div>
+  `).join('');
+
+  box.querySelectorAll('.leitura-input').forEach(inp=>{
+    inp.addEventListener('input', ()=>{
+      const i = Number(inp.dataset.i);
+      leituraValores[i] = inp.value;
+      if(i === leituraValores.length - 1 && inp.value.trim() !== ''){
+        leituraValores.push('');
+        renderLeituraRows();
+        const inputs = box.querySelectorAll('.leitura-input');
+        if(inputs[i]) inputs[i].focus();
+      }
+    });
+  });
+
+  box.querySelectorAll('.rm-leitura').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      leituraValores.splice(Number(btn.dataset.i), 1);
+      if(leituraValores.length === 0) leituraValores = [''];
+      renderLeituraRows();
+    });
+  });
+}
+renderLeituraRows();
+
+// ---- Imóvel desocupado (não apaga a leitura) ----
+const desocupadoBtn = document.getElementById('desocupadoBtn');
+desocupadoBtn.addEventListener('click', ()=>{
+  desocupado = !desocupado;
+  desocupadoBtn.classList.toggle('on', desocupado);
+  desocupadoBtn.textContent = desocupado ? 'Imóvel desocupado ✓' : 'Imóvel desocupado';
+});
+
+// ---- Fotos: captura / galeria / recorte / texto sobreposto ----
+document.getElementById('btnCamera').addEventListener('click', ()=> document.getElementById('fotoCamera').click());
+document.getElementById('btnGaleria').addEventListener('click', ()=> document.getElementById('fotoGaleria').click());
+
+document.getElementById('fotoCamera').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  if(file) await processarFotoDireta(file);
+  e.target.value = '';
+});
+
+let filaGaleria = [];
+
+document.getElementById('fotoGaleria').addEventListener('change', (e)=>{
+  filaGaleria = Array.from(e.target.files || []);
+  e.target.value = '';
+  processarProximaDaFila();
+});
+
+function processarProximaDaFila(){
+  if(filaGaleria.length === 0) return;
+  const file = filaGaleria.shift();
+  abrirRecorte(file);
+}
+
+function lerComoDataUrl(file){
+  return new Promise((res, rej)=>{
+    const r = new FileReader();
+    r.onload = ()=> res(r.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+function carregarImagem(src){
+  return new Promise((res, rej)=>{
+    const img = new Image();
+    img.onload = ()=> res(img);
+    img.onerror = rej;
+    img.src = src;
+  });
+}
+
+// Compõe a foto final com endereço/número/medidor escritos na parte de baixo
+async function compostarComTexto(dataUrl){
+  const img = await carregarImagem(dataUrl);
+  const maxW = 1000;
+  let w = img.width, h = img.height;
+  if(w > maxW){ h = Math.round(h * (maxW / w)); w = maxW; }
+
+  const endereco = enderecoInput.value.trim();
+  const numero = document.getElementById('numero').value.trim();
+  const medidor = document.getElementById('medidor').value.trim();
+  const linha = [endereco, numero].filter(Boolean).join(', ') + (medidor ? ` — Medidor: ${medidor}` : '');
+
+  const barH = linha ? Math.round(h * 0.09) + 14 : 0;
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h + barH;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0, w, h);
+
+  if(linha){
+    ctx.fillStyle = 'rgba(0,0,0,0.65)';
+    ctx.fillRect(0, h, w, barH);
+    ctx.fillStyle = '#ffffff';
+    const fontSize = Math.max(14, Math.round(w * 0.032));
+    ctx.font = `600 ${fontSize}px -apple-system, system-ui, sans-serif`;
+    ctx.textBaseline = 'middle';
+    ctx.fillText(linha, 14, h + barH/2, w - 28);
+  }
+
+  return canvas.toDataURL('image/jpeg', 0.82);
+}
+
+async function processarFotoDireta(file){
+  const dataUrl = await lerComoDataUrl(file);
+  const final = await compostarComTexto(dataUrl);
+  selectedFotos.push({ original: dataUrl, final });
+  renderFotoPreview();
+}
+
+// ---- Recorte simples (arrastar + zoom) — usado ao adicionar da galeria e também para recortar de novo uma foto já tirada ----
+let cropState = { img: null, scale: 1, x: 0, y: 0, dragging: false, startX: 0, startY: 0, fileDataUrl: null };
+let recropIndex = null; // se preenchido, o recorte está editando uma foto já adicionada, em vez de criar uma nova
+
+function iniciarRecorte(dataUrl, restantesNaFila){
+  const cropLabel = document.getElementById('cropLabel');
+  cropLabel.textContent = restantesNaFila > 0
+    ? `Ajuste a foto (faltam ${restantesNaFila}): arraste para posicionar e use o zoom`
+    : 'Ajuste a foto: arraste para posicionar e use o zoom';
+
+  cropState.fileDataUrl = dataUrl;
+  const imgEl = document.getElementById('cropImg');
+  imgEl.src = dataUrl;
+  imgEl.onload = () => {
+    const frame = 280;
+    const natW = imgEl.naturalWidth, natH = imgEl.naturalHeight;
+    const baseScale = Math.max(frame / natW, frame / natH);
+    cropState.scale = baseScale;
+    cropState.x = (frame - natW * baseScale) / 2;
+    cropState.y = (frame - natH * baseScale) / 2;
+    document.getElementById('cropZoom').value = 100;
+    aplicarTransformCrop();
+  };
+  document.getElementById('cropModal').classList.add('open');
+}
+
+async function abrirRecorte(file){
+  recropIndex = null;
+  const dataUrl = await lerComoDataUrl(file);
+  iniciarRecorte(dataUrl, filaGaleria.length);
+}
+
+function abrirRecorteExistente(i){
+  recropIndex = i;
+  iniciarRecorte(selectedFotos[i].original, 0);
+}
+
+function aplicarTransformCrop(){
+  const imgEl = document.getElementById('cropImg');
+  imgEl.style.transform = `translate(${cropState.x}px, ${cropState.y}px) scale(${cropState.scale})`;
+}
+
+const cropFrame = document.getElementById('cropFrame');
+cropFrame.addEventListener('pointerdown', (e)=>{
+  cropState.dragging = true;
+  cropState.startX = e.clientX - cropState.x;
+  cropState.startY = e.clientY - cropState.y;
+});
+window.addEventListener('pointermove', (e)=>{
+  if(!cropState.dragging) return;
+  cropState.x = e.clientX - cropState.startX;
+  cropState.y = e.clientY - cropState.startY;
+  aplicarTransformCrop();
+});
+window.addEventListener('pointerup', ()=>{ cropState.dragging = false; });
+
+document.getElementById('cropZoom').addEventListener('input', (e)=>{
+  const imgEl = document.getElementById('cropImg');
+  const frame = 280;
+  const natW = imgEl.naturalWidth, natH = imgEl.naturalHeight;
+  const baseScale = Math.max(frame / natW, frame / natH);
+  const factor = Number(e.target.value) / 100;
+  const cx = frame/2, cy = frame/2;
+  const oldScale = cropState.scale;
+  const newScale = baseScale * factor;
+  cropState.x = cx - (cx - cropState.x) * (newScale/oldScale);
+  cropState.y = cy - (cy - cropState.y) * (newScale/oldScale);
+  cropState.scale = newScale;
+  aplicarTransformCrop();
+});
+
+document.getElementById('cropCancel').addEventListener('click', ()=>{
+  document.getElementById('cropModal').classList.remove('open');
+  recropIndex = null;
+  processarProximaDaFila();
+});
+
+document.getElementById('cropOk').addEventListener('click', async ()=>{
+  const imgEl = document.getElementById('cropImg');
+  const frame = 280;
+  const canvas = document.createElement('canvas');
+  const outSize = 800;
+  canvas.width = outSize; canvas.height = outSize;
+  const ctx = canvas.getContext('2d');
+  const ratio = outSize / frame;
+  ctx.drawImage(
+    imgEl,
+    0, 0, imgEl.naturalWidth, imgEl.naturalHeight,
+    cropState.x * ratio, cropState.y * ratio,
+    imgEl.naturalWidth * cropState.scale * ratio, imgEl.naturalHeight * cropState.scale * ratio
+  );
+  const recortada = canvas.toDataURL('image/jpeg', 0.85);
+  const final = await compostarComTexto(recortada);
+
+  if(recropIndex !== null){
+    selectedFotos[recropIndex] = { original: recortada, final };
+    recropIndex = null;
+  } else {
+    selectedFotos.push({ original: recortada, final });
+  }
+
+  renderFotoPreview();
+  document.getElementById('cropModal').classList.remove('open');
+  processarProximaDaFila();
+});
+
+function renderFotoPreview(){
+  const box = document.getElementById('fotoPreview');
+  box.innerHTML = selectedFotos.map((foto,i)=>`
+    <div class="foto-thumb">
+      <img src="${foto.final}">
+      <button class="crop-btn" data-i="${i}" type="button" title="Recortar">✂️</button>
+      <button class="share" data-i="${i}" type="button" title="Compartilhar">⤴</button>
+      <button class="rm" data-i="${i}" type="button" title="Remover">×</button>
+    </div>
+  `).join('');
+  box.querySelectorAll('.rm').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      selectedFotos.splice(Number(btn.dataset.i),1);
+      renderFotoPreview();
+    });
+  });
+  box.querySelectorAll('.share').forEach(btn=>{
+    btn.addEventListener('click', ()=> abrirFotoTelaCheia(selectedFotos[Number(btn.dataset.i)].final));
+  });
+  box.querySelectorAll('.crop-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> abrirRecorteExistente(Number(btn.dataset.i)));
+  });
+}
+
+// ---- Visualização em tela cheia (toque e segure para compartilhar) ----
+function abrirFotoTelaCheia(src){
+  document.getElementById('fotoModalImg').src = src;
+  document.getElementById('fotoModal').classList.add('open');
+}
+document.getElementById('fotoModalClose').addEventListener('click', ()=>{
+  document.getElementById('fotoModal').classList.remove('open');
+});
+document.getElementById('fotoModal').addEventListener('click', (e)=>{
+  if(e.target.id === 'fotoModal') document.getElementById('fotoModal').classList.remove('open');
+});
+
+// ---- Persistência (localStorage, pois o app abre direto do arquivo/Safari) ----
+function loadEntries(){
+  try{
+    const raw = localStorage.getItem(CHAVE_DADOS);
+    entries = raw ? JSON.parse(raw) : [];
+  }catch(e){ entries = []; }
+  renderEntries();
+}
+function saveEntries(){
+  try{ localStorage.setItem(CHAVE_DADOS, JSON.stringify(entries)); }
+  catch(e){ console.error('Erro ao salvar', e); }
+}
+
+function limparFormulario(){
+  document.getElementById('data').value = todayStr();
+  enderecoInput.value = '';
+  document.getElementById('numero').value = '';
+  document.getElementById('medidor').value = '';
+  leituraValores = [''];
+  renderLeituraRows();
+  etapaSelecionada = null;
+  etapaBox.querySelectorAll('button').forEach(b=>b.classList.remove('sel'));
+  desocupado = false;
+  desocupadoBtn.classList.remove('on');
+  desocupadoBtn.textContent = 'Imóvel desocupado';
+  selectedFotos = [];
+  renderFotoPreview();
+  enderecoInput.focus();
+}
+
+function renderEntries(){
+  const list = document.getElementById('entriesList');
+  document.getElementById('entryCount').textContent = entries.length;
+
+  if(entries.length === 0){
+    list.innerHTML = '<div class="empty">Nenhum registro ainda. Preencha o formulário acima.</div>';
+    return;
+  }
+
+  const sorted = [...entries].sort((a,b)=> b.criadoEm - a.criadoEm);
+  list.innerHTML = sorted.map(e => `
+    <div class="entry${e.desocupado ? ' desocupado' : ''}">
+      <div class="entry-top">
+        <span class="entry-end">${e.endereco || '—'}${e.numero ? ', ' + e.numero : ''}</span>
+        <span class="entry-date">${formatDateBR(e.data)}</span>
+      </div>
+      <div class="entry-meta">Etapa <strong>${e.etapa || '—'}</strong> · Medidor <strong>${e.medidor || '—'}</strong> · Leitura${(e.leituras && e.leituras.length > 1) ? 's' : ''} <strong>${(e.leituras && e.leituras.length) ? e.leituras.join(', ') : '—'}</strong>${e.desocupado ? ' · <strong>Desocupado</strong>' : ''}</div>
+      ${e.fotos && e.fotos.length ? `<div class="entry-fotos" data-id="${e.id}">${e.fotos.map((f,i)=>`<img src="${f}" data-i="${i}">`).join('')}</div>` : ''}
+      <div class="entry-actions">
+        <button class="entry-del" data-id="${e.id}">Excluir</button>
+      </div>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('.entry-fotos').forEach(container=>{
+    const entry = entries.find(e => e.id === container.dataset.id);
+    container.querySelectorAll('img').forEach(img=>{
+      img.addEventListener('click', ()=> abrirFotoTelaCheia(entry.fotos[Number(img.dataset.i)]));
+    });
+  });
+  list.querySelectorAll('.entry-del').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      entries = entries.filter(e => e.id !== btn.dataset.id);
+      saveEntries();
+      renderEntries();
+    });
+  });
+}
+
+function salvarRegistro(etapaParaSalvar, opts){
+  opts = opts || {};
+  const data = document.getElementById('data').value;
+  const endereco = capitalize(enderecoInput.value.trim());
+  const numero = document.getElementById('numero').value.trim();
+  const medidor = document.getElementById('medidor').value.trim();
+  const leituras = leituraValores.map(v => v.trim()).filter(v => v !== '');
+  const statusMsg = document.getElementById('statusMsg');
+
+  if(!endereco){
+    if(!opts.silencioso){
+      statusMsg.textContent = 'Informe o endereço.';
+      statusMsg.style.color = 'var(--red)';
+    }
+    return false;
+  }
+  if(!etapaParaSalvar){
+    if(!opts.silencioso){
+      statusMsg.textContent = 'Selecione a etapa.';
+      statusMsg.style.color = 'var(--red)';
+    }
+    return false;
+  }
+
+  const novoRegistro = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+    data, endereco, numero, etapa: etapaParaSalvar, medidor, leituras,
+    desocupado, fotos: selectedFotos.map(f => f.final), criadoEm: Date.now()
+  };
+
+  entries.push(novoRegistro);
+  saveEntries();
+  renderEntries();
+  limparFormulario();
+
+  if(!opts.silencioso){
+    statusMsg.textContent = 'Registro salvo com sucesso.';
+    statusMsg.style.color = 'var(--accent)';
+    setTimeout(()=>{ statusMsg.textContent = ''; }, 2500);
+  }
+  return true;
+}
+
+document.getElementById('saveBtn').addEventListener('click', ()=>{
+  salvarRegistro(etapaSelecionada, { silencioso: false });
+});
+
+loadEntries();
+</script>
+</body>
+</html>
