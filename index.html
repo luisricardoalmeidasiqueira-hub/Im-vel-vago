@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Imóvel Vago</title>
+<meta name="theme-color" content="#2f7a4f">
+<style>
+:root{--bg:#fff;--panel:#fff;--panel2:#f2f7f3;--line:#dbe8de;--text:#163422;--dim:#5c7864;--accent:#2f7a4f;--dark:#1f5c39;--red:#c85a40;--gray:#8a978f}
+*{box-sizing:border-box}html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:Georgia,serif;min-height:100vh;padding:18px 14px 40px}
+.wrap{max-width:480px;margin:auto}header{margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+h1{font-size:22px;font-weight:600;margin:0 0 4px;color:var(--accent)}
+header p{margin:0;color:var(--dim);font:13px -apple-system,BlinkMacSystemFont,sans-serif}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px}
+label{display:block;font:12.5px -apple-system,BlinkMacSystemFont,sans-serif;color:var(--dim);margin:14px 0 6px}
+label:first-of-type{margin-top:0}
+input[type=text],input[type=date]{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--text);font:16px -apple-system,BlinkMacSystemFont,sans-serif;padding:11px 12px;appearance:none}
+input:focus{outline:none;border-color:var(--accent)}
+.row2{display:flex;gap:8px}.row2 .end{flex:3}.row2 .num{flex:1}
+.etapas{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.etapas button,.toggle,.foto-btn{padding:10px 4px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);color:var(--dim);font:600 12.5px -apple-system,BlinkMacSystemFont,sans-serif}
+.etapas button.sel,.toggle.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.toggle{width:100%;margin-top:14px;border-color:var(--accent);color:var(--accent);font-size:14px}
+.foto-row{display:flex;gap:8px}.foto-btn{flex:1;border:1px dashed #b9dcc4;color:var(--accent);cursor:pointer}
+.foto-preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.foto-thumb{position:relative;width:78px;height:78px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.foto-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.foto-thumb button{position:absolute;border:0;color:#fff;cursor:pointer;padding:0}
+.rm{top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:#000b;font-size:13px}
+.share{right:3px;bottom:3px;width:25px;height:25px;border-radius:50%;background:#2f7a4fe8;font-size:14px}
+.crop{left:3px;bottom:3px;width:25px;height:25px;border-radius:50%;background:#000b;font-size:12px}
+.leitura-row{display:flex;gap:8px;margin-bottom:8px}.leitura-row input{flex:1}.rm-leitura{width:40px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);color:var(--gray)}
+.save{width:100%;margin-top:18px;padding:14px;border:0;border-radius:8px;background:var(--dark);color:#fff;font:700 15px -apple-system,BlinkMacSystemFont,sans-serif}
+.status{text-align:center;font:13px -apple-system,BlinkMacSystemFont,sans-serif;color:var(--dim);margin-top:10px;min-height:16px}
+.section{font:13px -apple-system,BlinkMacSystemFont,sans-serif;color:var(--dim);margin:26px 2px 10px;display:flex;justify-content:space-between}
+.count{color:var(--accent);font-weight:600}.entry{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;padding:12px 14px;margin-bottom:10px;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
+.entry.des{border-left-color:var(--red)}.top{display:flex;justify-content:space-between;gap:8px}.addr{font-size:15px;font-weight:700;color:var(--accent)}.date{font-size:12px;color:var(--dim)}
+.meta{font-size:12.5px;color:var(--dim);margin-top:4px}.entry-stage{margin-top:8px}.stage-title{font-size:11px;font-weight:700;color:var(--accent);margin-bottom:4px}.entry-fotos{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.entry-fotos img{width:60px;height:60px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.actions{text-align:right;border-top:1px solid var(--line);margin-top:8px;padding-top:6px}.del{border:0;background:none;color:var(--gray);font-size:12px}
+.empty{text-align:center;color:var(--dim);font:13px -apple-system,BlinkMacSystemFont,sans-serif;padding:30px 10px}
+footer{text-align:center;margin-top:26px;color:var(--accent);font:12px -apple-system,BlinkMacSystemFont,sans-serif}
+.modal{display:none;position:fixed;inset:0;background:#000e;z-index:20;align-items:center;justify-content:center;flex-direction:column;padding:20px}
+.modal.open{display:flex}.modal img{max-width:100%;max-height:78vh;border-radius:8px}.close{position:absolute;top:15px;right:18px;background:none;border:0;color:#fff;font-size:30px}
+.hint{color:#eee;font:12px -apple-system,BlinkMacSystemFont,sans-serif;margin-top:12px;text-align:center}
+.crop-modal{display:none;position:fixed;inset:0;background:#000f;z-index:30;align-items:center;justify-content:center;flex-direction:column;padding:16px}.crop-modal.open{display:flex}
+.frame{width:280px;height:280px;overflow:hidden;position:relative;border:2px solid var(--accent);border-radius:10px;background:#111;touch-action:none}
+.frame img{position:absolute;left:0;top:0;max-width:none;transform-origin:0 0}
+.crop-modal input{width:280px;margin-top:16px}.crop-actions{display:flex;gap:10px;width:280px;margin-top:12px}.crop-actions button{flex:1;padding:11px;border:0;border-radius:8px;font-weight:700}.ok{background:var(--dark);color:#fff}.cancel{background:#444;color:#fff}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><h1>Imóvel Vago</h1><p>Registro de leitura por endereço</p></header>
+
+<div class="card">
+<label for="data">Data</label><input type="date" id="data">
+
+<label>Endereço</label>
+<div class="row2"><input id="endereco" class="end" type="text" placeholder="Ex: Rua das Flores"><input id="numero" class="num" type="text" inputmode="numeric" placeholder="Nº"></div>
+
+<label>Etapa</label><div class="etapas" id="etapas"></div>
+
+<label for="medidor">Número do medidor</label><input id="medidor" type="text" placeholder="Ex: 987654">
+
+<label>Leitura</label><div id="leituras"></div>
+
+<button type="button" class="toggle" id="desBtn">Imóvel desocupado</button>
+
+<label>Foto do medidor</label>
+<div class="foto-row">
+<input id="camera" type="file" accept="image/*" capture="environment" hidden>
+<input id="galeria" type="file" accept="image/*" multiple hidden>
+<button type="button" class="foto-btn" id="btnCamera">📷 Tirar foto</button>
+<button type="button" class="foto-btn" id="btnGaleria">🖼️ Escolher fotos</button>
+</div>
+<div class="foto-preview" id="preview"></div>
+
+<button class="save" id="save">Salvar registro</button><div class="status" id="status"></div>
+</div>
+
+<div class="section"><span>Registros salvos</span><span class="count" id="count">0</span></div>
+<div id="entries"></div><footer>Criado por Luís Ricardo</footer>
+</div>
+
+<div class="modal" id="modal"><button class="close" id="close">×</button><img id="modalImg"><div class="hint">Use o botão ⤴ para compartilhar a foto</div></div>
+
+<div class="crop-modal" id="cropModal">
+<div class="hint" style="margin-bottom:8px">Arraste para posicionar e use o zoom</div>
+<div class="frame" id="frame"><img id="cropImg"></div>
+<input type="range" id="zoom" min="100" max="300" value="100">
+<div class="crop-actions"><button class="cancel" id="cropCancel">Cancelar</button><button class="ok" id="cropOk">Usar foto</button></div>
+</div>
+
+<script>
+const KEY='imovel-vago-entries-v2';
+let entries=[], etapa=null, desocupado=false, fotos=[], fotosPorEtapa={}, leituras=[''];
+let fila=[], recrop=null, crop={scale:1,x:0,y:0,drag:false,sx:0,sy:0};
+
+const $=id=>document.getElementById(id);
+const hoje=()=>{let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+const br=s=>s?`${s.slice(8,10)}/${s.slice(5,7)}/${s.slice(0,4)}`:'';
+const cap=s=>s?s.charAt(0).toUpperCase()+s.slice(1):s;
+$('data').value=hoje();
+$('endereco').addEventListener('blur',()=>{$('endereco').value=cap($('endereco').value)});
+
+$('etapas').innerHTML=Array.from({length:18},(_,i)=>`<button type="button" data-e="${i+1}">${i+1}</button>`).join('');
+$('etapas').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  // Cada etapa tem seu próprio conjunto de fotos.
+  if(etapa) fotosPorEtapa[etapa]=fotos;
+  etapa=b.dataset.e;
+  fotos=fotosPorEtapa[etapa] || [];
+  $('etapas').querySelectorAll('button').forEach(x=>x.classList.remove('sel')); b.classList.add('sel');
+  renderFotos();
+});
+
+function renderLeituras(){
+ $('leituras').innerHTML=leituras.map((v,i)=>`<div class="leitura-row"><input class="lin" data-i="${i}" inputmode="numeric" value="${v}" placeholder="Ex: 12345">${leituras.length>1?`<button class="rm-leitura" data-i="${i}" type="button">×</button>`:''}</div>`).join('');
+ $('leituras').querySelectorAll('.lin').forEach(inp=>inp.oninput=()=>{
+   let i=+inp.dataset.i; leituras[i]=inp.value;
+   if(i===leituras.length-1 && inp.value.trim()){leituras.push('');renderLeituras();let x=document.querySelectorAll('.lin');x[i]?.focus()}
+ });
+ $('leituras').querySelectorAll('.rm-leitura').forEach(b=>b.onclick=()=>{leituras.splice(+b.dataset.i,1);if(!leituras.length)leituras=[''];renderLeituras()});
+}
+renderLeituras();
+
+$('desBtn').onclick=()=>{desocupado=!desocupado;$('desBtn').classList.toggle('on',desocupado);$('desBtn').textContent=desocupado?'Imóvel desocupado ✓':'Imóvel desocupado'};
+
+$('btnCamera').onclick=()=>$('camera').click();
+$('btnGaleria').onclick=()=>$('galeria').click();
+$('camera').onchange=async e=>{if(e.target.files[0]){if(!etapa){msg('Selecione a etapa antes de tirar a foto.',true);e.target.value='';return}let d=await read(e.target.files[0]);fotos.push({original:d,final:await compose(d)});fotosPorEtapa[etapa]=fotos;renderFotos()}e.target.value=''};
+$('galeria').onchange=async e=>{if(!etapa){msg('Selecione a etapa antes de escolher a foto.',true);e.target.value='';return}fila=Array.from(e.target.files||[]);e.target.value='';nextCrop()};
+
+function read(file){return new Promise((ok,no)=>{let r=new FileReader();r.onload=()=>ok(r.result);r.onerror=no;r.readAsDataURL(file)})}
+function image(src){return new Promise((ok,no)=>{let i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=src})}
+async function compose(src){
+ let im=await image(src),w=im.width,h=im.height,max=1000;if(w>max){h=Math.round(h*max/w);w=max}
+ let line=[$('endereco').value.trim(),$('numero').value.trim()].filter(Boolean).join(', ');
+ let med=$('medidor').value.trim();if(med)line+=(line?' — ':'')+'Medidor: '+med;
+ let bar=line?Math.round(h*.09)+14:0,c=document.createElement('canvas');c.width=w;c.height=h+bar;
+ let x=c.getContext('2d');x.drawImage(im,0,0,w,h);
+ if(line){x.fillStyle='rgba(0,0,0,.65)';x.fillRect(0,h,w,bar);x.fillStyle='#fff';x.font=`600 ${Math.max(14,Math.round(w*.032))}px -apple-system,system-ui,sans-serif`;x.textBaseline='middle';x.fillText(line,14,h+bar/2,w-28)}
+ return c.toDataURL('image/jpeg',.82)
+}
+
+function nextCrop(){if(!fila.length)return;let f=fila.shift();openCropFile(f)}
+async function openCropFile(f){recrop=null;startCrop(await read(f),fila.length)}
+function startCrop(src,idx){
+ $('cropImg').src=src;$('cropModal').classList.add('open');
+ let im=$('cropImg');im.onload=()=>{let frame=280,s=Math.max(frame/im.naturalWidth,frame/im.naturalHeight);crop={scale:s,x:(frame-im.naturalWidth*s)/2,y:(frame-im.naturalHeight*s)/2,drag:false};$('zoom').value=100;transform()};
+}
+function openRecrop(i){recrop=i;startCrop(fotos[i].original,0)}
+function transform(){$('cropImg').style.transform=`translate(${crop.x}px,${crop.y}px) scale(${crop.scale})`}
+$('frame').onpointerdown=e=>{crop.drag=true;crop.sx=e.clientX-crop.x;crop.sy=e.clientY-crop.y};
+window.onpointermove=e=>{if(crop.drag){crop.x=e.clientX-crop.sx;crop.y=e.clientY-crop.sy;transform()}};
+window.onpointerup=()=>crop.drag=false;
+$('zoom').oninput=e=>{let im=$('cropImg'),f=280,base=Math.max(f/im.naturalWidth,f/im.naturalHeight),ns=base*(+e.target.value/100),cx=140,cy=140;crop.x=cx-(cx-crop.x)*(ns/crop.scale);crop.y=cy-(cy-crop.y)*(ns/crop.scale);crop.scale=ns;transform()};
+$('cropCancel').onclick=()=>{$('cropModal').classList.remove('open');recrop=null;nextCrop()};
+$('cropOk').onclick=async()=>{
+ let im=$('cropImg'),c=document.createElement('canvas'),out=800;c.width=out;c.height=out;let x=c.getContext('2d'),r=out/280;
+ x.drawImage(im,0,0,im.naturalWidth,im.naturalHeight,crop.x*r,crop.y*r,im.naturalWidth*crop.scale*r,im.naturalHeight*crop.scale*r);
+ let original=c.toDataURL('image/jpeg',.85),final=await compose(original);
+ if(recrop!==null)fotos[recrop]={original,final};else fotos.push({original,final});
+ if(etapa) fotosPorEtapa[etapa]=fotos;
+ renderFotos();$('cropModal').classList.remove('open');recrop=null;nextCrop()
+};
+
+function renderFotos(){
+ $('preview').innerHTML=fotos.map((f,i)=>`<div class="foto-thumb"><img src="${f.final}"><button class="crop" data-i="${i}" title="Recortar">✂</button><button class="share" data-i="${i}" title="Compartilhar">⤴</button><button class="rm" data-i="${i}">×</button></div>`).join('');
+ $('preview').querySelectorAll('.rm').forEach(b=>b.onclick=()=>{fotos.splice(+b.dataset.i,1);if(etapa)fotosPorEtapa[etapa]=fotos;renderFotos()});
+ $('preview').querySelectorAll('.crop').forEach(b=>b.onclick=()=>openRecrop(+b.dataset.i));
+ $('preview').querySelectorAll('.share').forEach(b=>b.onclick=()=>sharePhoto(fotos[+b.dataset.i].final));
+}
+async function sharePhoto(src){
+ try{
+   let blob=await (await fetch(src)).blob(),file=new File([blob],'foto-medidor.jpg',{type:'image/jpeg'});
+   if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))) await navigator.share({files:[file],title:'Foto do medidor'});
+   else openModal(src);
+ }catch(e){if(e.name!=='AbortError')openModal(src)}
+}
+function openModal(src){$('modalImg').src=src;$('modal').classList.add('open')}
+$('close').onclick=()=>$('modal').classList.remove('open');
+$('modal').onclick=e=>{if(e.target===$('modal'))$('modal').classList.remove('open')};
+
+function saveData(){try{localStorage.setItem(KEY,JSON.stringify(entries))}catch(e){alert('Não foi possível guardar os registros. Se houver muitas fotos, exclua registros antigos.')} }
+function load(){try{entries=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){entries=[]}renderEntries()}
+function clearForm(){
+ $('data').value=hoje();$('endereco').value='';$('numero').value='';$('medidor').value='';
+leituras=[''];renderLeituras();etapa=null;fotos=[];fotosPorEtapa={};$('etapas').querySelectorAll('button').forEach(b=>b.classList.remove('sel'));
+desocupado=false;$('desBtn').classList.remove('on');$('desBtn').textContent='Imóvel desocupado';fotos=[];fotosPorEtapa={};renderFotos()
+}
+function save(){
+ let data=$('data').value,end=cap($('endereco').value.trim()),num=$('numero').value.trim(),med=$('medidor').value.trim(),ls=leituras.map(x=>x.trim()).filter(Boolean);
+ if(!end){msg('Informe o endereço.',true);return}if(!etapa){msg('Selecione a etapa.',true);return}
+ if(etapa) fotosPorEtapa[etapa]=fotos;
+let fotosSalvas={};Object.keys(fotosPorEtapa).forEach(k=>{if(fotosPorEtapa[k]?.length)fotosSalvas[k]=fotosPorEtapa[k].map(f=>f.final)});
+entries.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2),data,endereco:end,numero:num,etapa,medidor:med,leituras:ls,desocupado,fotos:fotos.map(f=>f.final),fotosPorEtapa:fotosSalvas,criadoEm:Date.now()});
+saveData();renderEntries();clearForm();msg('Registro salvo com sucesso.');}
+function msg(t,err=false){$('status').textContent=t;$('status').style.color=err?'var(--red)':'var(--accent)';setTimeout(()=>$('status').textContent='',2500)}
+$('save').onclick=save;
+
+function renderEntries(){
+$('count').textContent=entries.length;
+if(!entries.length){$('entries').innerHTML='<div class="empty">Nenhum registro ainda. Preencha o formulário acima.</div>';return}
+let sorted=[...entries].sort((a,b)=>b.criadoEm-a.criadoEm);
+$('entries').innerHTML=sorted.map(e=>`<div class="entry ${e.desocupado?'des':''}">
+<div class="top"><span class="addr">${e.endereco||'—'}${e.numero?', '+e.numero:''}</span><span class="date">${br(e.data)}</span></div>
+<div class="meta">Etapa <b>${e.etapa||'—'}</b> · Medidor <b>${e.medidor||'—'}</b> · Leitura${e.leituras?.length>1?'s':''} <b>${e.leituras?.length?e.leituras.join(', '):'—'}</b>${e.desocupado?' · <b>Desocupado</b>':''}</div>
+${e.fotosPorEtapa&&Object.keys(e.fotosPorEtapa).length?Object.keys(e.fotosPorEtapa).sort((a,b)=>+a-+b).map(et=>`<div class="entry-stage"><div class="stage-title">Etapa ${et}</div><div class="entry-fotos">${e.fotosPorEtapa[et].map((f,i)=>`<img src="${f}" data-entry="${e.id}" data-stage="${et}" data-i="${i}">`).join('')}</div></div>`).join(''):e.fotos?.length?`<div class="entry-fotos">${e.fotos.map((f,i)=>`<img src="${f}" data-entry="${e.id}" data-stage="${e.etapa||''}" data-i="${i}">`).join('')}</div>`:''}
+<div class="actions"><button class="del" data-id="${e.id}">Excluir</button></div></div>`).join('');
+$('entries').querySelectorAll('.entry-fotos img').forEach(im=>im.onclick=()=>{let e=entries.find(x=>x.id===im.dataset.entry);let list=e.fotosPorEtapa?.[im.dataset.stage]||e.fotos;openModal(list[+im.dataset.i])});
+$('entries').querySelectorAll('.del').forEach(b=>b.onclick=()=>{if(confirm('Excluir este registro?')){entries=entries.filter(e=>e.id!==b.dataset.id);saveData();renderEntries()}});
+}
+load();
+</script>
+</body>
+</html>
